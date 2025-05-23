@@ -17,7 +17,7 @@ which can be possible as research suggests that we can obtain somatic variants f
 
 using gatk workflow
 
-## germline
+## Germline
 germline variant calling
 
 ## New addition of heatmaps scripts and HLA typing workflow. 
