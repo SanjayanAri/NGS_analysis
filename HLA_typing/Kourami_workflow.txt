@@ -1,0 +1,74 @@
+Kourami
+
+## Kourami is a tool to do HLA typing analysis
+
+## https://github.com/Kingsford-Group/kourami
+
+## Installed in Conda in kourami environment (has the bwa kit, samtools and fastp)
+
+## tool usage command
+
+java -jar Kourmai.jar (panel.bam file) -d /home/parasmals/kourami/kourami-0.9.6/db -o (output prefix)
+
+## How to get the panel.bam file
+
+## Now the preprocessing steps
+
+## Trim your sequence
+
+fastp --detect_adapter_for_pe --overrepresentation_analysis --correction --cut_right --html () --thread 12 -i {read1.fastq} -I {read2.fastq} -o {R1_trim.fastq} -O {R2_trim.fastq}
+
+## alignment to hs38DH (recommended by tool and 1000 genomes)
+
+# make sure the hs38DH is indexed properly
+
+bwa index hs38DH.fa
+
+## alignment
+
+bwa mem -t 16 hs38DH.fa (R1) (R2) > (output.sam)
+
+## covert to bam file
+
+samtools view -Sb (output.sam) > output.bam
+
+## sorting
+
+samtools sort -@ 4 -o sort.bam output.bam
+
+## index
+
+samtools index sort.bam
+
+## name sort
+
+samtools sort -@ 4 -n -o nsort.bam sort.bam
+
+## sort by chrom and coords
+
+samtools sort -@ 4 -o final_sort.bam nsort.bam
+
+## index it
+
+## preprocessing over
+
+###Alignment and extracting HLA locus
+
+## use the script in the scripts folder and run this will align and extract the HLA region and will give a panel.bam file which is needed for kourami
+
+/home/parasmals/kourami/kourami-0.9.6/scripts/alignAndExtract_hs38DH.sh (sample name) final_sort.bam
+
+
+### panel file is created and ready to run Kourami
+
+#go to build folder
+
+mkdir (sample name)
+
+#run kourami
+
+java -jar Kourami.jar (panel.bam) -d /home/parasmals/kourami/kourami-0.9.6/db -o (sample name)/(sample name)
+
+
+You will get log file and results and then hla sequence
+
