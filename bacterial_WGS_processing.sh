@@ -1,18 +1,28 @@
 #!/bin/bash
 
 #File path: /home/parasmals/Scripts/bacterial_WGS_processing.sh
-echo "Thank you for running this script!"
+
 echo
 echo " You are the universe in ecstatic motion. ~ Rumi "
 echo
-echo "Bacterial WGS Processing Script"
+echo "Script made by Sanjayan. A"
+echo
+echo "Contact me at: a.sanjayan2002@gmail.com"
 echo
 echo "This script is for processing bacterial WGS data."
 echo
-echo "This script does trimming of reads, genome assembly, and variant calling."
+echo "This script does trimming of reads, genome assembly, annotation, plasmid detection and variant calling."
 echo
-echo " Run this script where the following tools are installed: Fastp (for trimming), Unicycler (for assembly), and Snippy (for variant calling)."
+echo " Run this script where the following tools are installed: Fastp (for trimming), Unicycler (for assembly), prokka (for annotation), Mob_suite (for plasmid detection) and Snippy (for variant calling)."
+echo 
+echo "I hope you are running this script in the conda environment 'auto' "
+echo "if not then please activate the conda environment 'auto' before running this script."
+echo "By ctrl+c to stop this script and then type ' conda activate auto ' and then run this script again."
 echo
+echo "In terminal ctrl+shift+v to paste the command"
+echo "In terminal ctrl+shift+c to copy the command"
+echo " Doing ctrl+c and ctrl+v in terminal will stop the script so know the difference "
+
 # Input prompt
 prompt_for_input () {
     echo "Input read file 1: "
@@ -47,6 +57,24 @@ prompt_for_input () {
         echo "Error creating directory! check for permission"
         exit 1
     fi
+
+    echo "Iput genus name: (This is used for prokka annotation first letter should be capitalized)"
+    echo
+    echo "For example: Escherichia, Salmonella, Klebsiella"
+    read genus_name
+    if [[ -z "$genus_name" ]]; then
+        echo "Genus name cannot be empty! Please provide a valid genus name."
+        prompt_for_input
+    fi
+
+    echo "Input species name: (This is used for prokka annotation)"
+    read species_name
+    if [[ -z "$species_name" ]]; then
+        echo "Species name cannot be empty! Please provide a valid species name."
+        prompt_for_input
+    fi
+
+ 
 }
 
 echo "The result will be stored in the directory: $parent_dir"
@@ -102,6 +130,32 @@ echo "Assembly files are saved in $parent_dir/genome_assembly"
 echo
 echo "run the following command to visualize the assembly: bandage image $parent_dir/genome_assembly/assembly.gfa $parent_dir/genome_assembly/assembly.png"
 
+# Run Prokka
+echo "Running Prokka for annotation..."
+
+prokka --outdir "$parent_dir/prokka_results" --prefix "$user_name" --cpus 16 --addgenes --addmrna --genus "$genus_name" --species "$species_name" --usegenus $parent_dir/genome_assembly/assembly.fasta
+if [[ $? -eq 0 ]]; then
+    echo "Annotation successful!"
+else
+    echo "Annotation failed! exiting script"
+    exit 1
+fi
+echo "Annotation files are saved in $parent_dir/prokka_results"
+echo
+
+# Run Mob_recon
+echo "Running Mob_recon for plasmid typing..."
+
+mob_recon --infile "$parent_dir/genome_assembly/assembly.fasta" --outdir "$parent_dir/mob_recon_results" -u -n 8
+if [[ $? -eq 0 ]]; then
+    echo "Plasmid typing successful!"
+else
+    echo "Plasmid typing failed! exiting script"
+    exit 1
+fi
+echo "Plasmid typing files are saved in $parent_dir/mob_recon_results"
+echo
+
 
 # End of script
 echo "All processes completed successfully!"
@@ -109,10 +163,10 @@ echo
 echo "Results are saved in $parent_dir"
 echo
 echo "Won't you come and dance in the dark with me? "
-echo "Diamonds in the trees, pentagrams in the night sky" 
+echo  
 echo "~ assensionism, sleep token"
 echo
-
-echo "now, ugh go away! bye bye"
+echo
+echo "Thank you for using this script!"
 
 exit 0
