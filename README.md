@@ -20,4 +20,6 @@ using gatk workflow
 ## germline
 germline variant calling
 
-## new addition of heatmaps scripts and HLA typing workflow. 
+## New addition of heatmaps scripts and HLA typing workflow. 
+python scripts for heatmaps and HLA typing is done manual workflow using Kourami tool.
+
